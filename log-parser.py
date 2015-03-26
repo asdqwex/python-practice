@@ -17,7 +17,7 @@ p = re.compile(options.string)
 matchcounter = 1
 ipaddresses = []
 statuscodes = []
-status_stats = {'200': 0, '404': 0, '304': 0, '400': 0, '405': 0, '500': 0, '301': 0, '403': 0, '206': 0}
+status_stats = {}
 
 for line in f:
 	line_buffer = line
@@ -32,16 +32,21 @@ for line in f:
 
 	line_parts = line_buffer.split(' ')
 	statuscodes.append(line_parts[8])
-	for code in statuscodes:
-		status_stats[code] = status_stats[code] + 1
 
-
+for code in statuscodes:
+	if code not in status_stats:
+		status_stats[code] = 0
+	status_stats[code] = status_stats[code] + 1
 
 print options.string, "was found:", matchcounter, "times"
 
 print len(ipaddresses), "Ipaddresses that have accessed this website"
 
-print status_stats
+print 'Number of times webserver responded with each status code'
+
+for k, v in status_stats.iteritems():
+	print k , v
+
 
 
 
