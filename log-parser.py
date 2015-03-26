@@ -4,32 +4,44 @@ import re
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="filename",
                   help="source log file", metavar="FILE")
-parser.add_option("-c", "--count", dest="count",
-                  help="count instances of -s in file", metavar="COUNT")
-
+parser.add_option("-s", "--string", dest="string",
+                  help="regex to match", metavar="STRING")
 
 (options, args) = parser.parse_args()
 
 filename = options.filename
 f = open(filename, 'r')
 
-p = re.compile("/assets/flagship.otf")
+p = re.compile(options.string)
 
-flagmatchcounter = 1
+matchcounter = 1
 ipaddresses = []
+statuscodes = []
+status_stats = {'200': 0, '404': 0, '304': 0, '400': 0, '405': 0, '500': 0, '301': 0, '403': 0, '206': 0}
 
 for line in f:
+	line_buffer = line
 
-	flagmatch = p.match(line)
-	if flagmatch != []:
-		flagmatchcounter = flagmatchcounter + 1
+	match = p.match(line)
+	if match != []:
+		matchcounter = matchcounter + 1
 
 	ip = re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", line)
 	if ip not in ipaddresses:
 		ipaddresses.append(ip)
 
-print "flagship.otf was accessed:", flagmatchcounter, "times"
+	line_parts = line_buffer.split(' ')
+	statuscodes.append(line_parts[8])
+	for code in statuscodes:
+		status_stats[code] = status_stats[code] + 1
 
-print " Ipaddresses that have accessed this website:"
 
-print len(ipaddresses)
+
+print options.string, "was found:", matchcounter, "times"
+
+print len(ipaddresses), "Ipaddresses that have accessed this website"
+
+print status_stats
+
+
+
